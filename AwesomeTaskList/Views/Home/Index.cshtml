@@ -12,7 +12,7 @@
             <thead>
                 <tr>
                     <th colspan="5">
-                        <a href="/Dashboard/Create">Create task</a>
+                        <a href="@Url.Action("Create", "Home")">Create task</a>
                     </th>
                 </tr>
                 <tr>
@@ -32,9 +32,9 @@
                         <td>@item.DueTime</td>
                         <td>@item.Completed</td>
                         <td>
-                            <a href="#">Edit</a> |
-                            <a href="#">Delete</a> |
-                            <a href="#">Complete</a>
+                            <a href="@Url.Action("Edit", "Home")?id=@item.Id">Edit</a> |
+                            <a href="@Url.Action("Delete", "Home")?id=@item.Id">Delete</a> |
+                            <a href="@Url.Action("Complete", "Home")?id=@item.Id">Complete</a>
                         </td>
                     </tr>
                 }

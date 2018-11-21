@@ -9,16 +9,6 @@ namespace AwesomeTaskList.Controllers
 {
     public class HomeController : Controller
     {
-        static List<Task> Tasks;
-        public HomeController()
-        {
-            Tasks = new List<Task>();
-            Tasks.Add(new Task { Title = "Wash Car", Description = "", Completed = false, DueTime = new DateTime(2018, 09, 09) });
-            Tasks.Add(new Task { Title = "Super Market", Description = "List", Completed = true, DueTime = new DateTime(2018, 09, 15) });
-            Tasks.Add(new Task { Title = "Pay the Phonebill", Description = "", Completed = false, DueTime = new DateTime(2018, 10, 09) });
-            Tasks.Add(new Task { Title = "Fix the bike", Description = "", Completed = false });
-            Tasks.Add(new Task { Title = "Laundry", Description = "White", Completed = false, DueTime = DateTime.Now });
-        }
 
         public ActionResult Index()
         {
@@ -30,24 +20,120 @@ namespace AwesomeTaskList.Controllers
             return View(tasks);
         }
 
-        public ActionResult Seed()
+        public ActionResult Create()
+        {
+            ViewData["InvalidTitle"] = false;
+            return View(new Task());
+        }
+
+        [HttpPost]
+        public ActionResult CreateTask(string title, string description, DateTime? dueDate)
+        {
+            Task task = new Task()
+            {
+                Title = title,
+                Description = description,
+                DueTime = dueDate
+            };
+            if (!string.IsNullOrWhiteSpace(task.Title))
+            {
+                using (var db = new AppContext())
+                {
+                    db.Tasks.Add(task);
+                    db.SaveChanges();
+                }
+            }
+            else
+            {
+                ViewData["InvalidTitle"] = true;
+                return View("Create", task);
+            }
+
+            return RedirectToAction("Index");
+            
+        }
+
+        public ActionResult Delete(int Id)
         {
             using (var db = new AppContext())
             {
-                foreach (var item in Tasks)
-                {
-                    db.Tasks.Add(item);
-                    db.SaveChanges();
-                }
+                Task task = db.Tasks.Find(Id);
+                db.Entry(task).State = System.Data.Entity.EntityState.Deleted;
+                db.SaveChanges();
             }
             return RedirectToAction("Index");
         }
 
-        //public ActionResult Index(int? Id)
-        //{
-        //    //ViewData["Id"] = Id;
-        //    ViewBag.Id = Id;
-        //    return View(Id);
-        //}
+        public ActionResult Edit(int Id)
+        {
+            Task task = new Task();
+            using (var db = new AppContext())
+            {
+                task = db.Tasks.Find(Id);
+            }
+
+            return View(task);
+        }
+
+        [HttpPost]
+        public ActionResult EditTask(int id, string title, string description, DateTime? dueDate )
+        {
+            Task task = new Task();
+
+            using (var db = new AppContext())
+            {
+                task = db.Tasks.Find(id);
+                task.Title = title;
+                task.Description = description;
+                task.DueTime = dueDate;
+
+                db.Entry(task).State = System.Data.Entity.EntityState.Modified;
+                db.SaveChanges();
+            }
+            return RedirectToAction("Index");
+        }
+
+        public ActionResult Complete(int Id)
+        {
+            Task task = new Task();
+
+            using (var db = new AppContext())
+            {
+                task = db.Tasks.Find(Id);
+                if (task.Completed)
+                {
+                    task.Completed = false;
+                }
+                else
+                {
+                    task.Completed = true;
+                }
+
+                db.Entry(task).State = System.Data.Entity.EntityState.Modified;
+                db.SaveChanges();
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        public ActionResult IncompleteTasks()
+        {
+            List<Task> Incomplete = new List<Task>();
+            using (var db = new AppContext())
+            {
+                Incomplete = db.Tasks.Where(t => t.Completed == false).ToList();
+            }
+            return View("Index", Incomplete);
+        }
+
+        public ActionResult CompleteTasks()
+        {
+            List<Task> Complete = new List<Task>();
+            using (var db = new AppContext())
+            {
+                Complete = db.Tasks.Where(t => t.Completed == true).ToList();
+            }
+            return View("Index", Complete);
+        }
     }
 }

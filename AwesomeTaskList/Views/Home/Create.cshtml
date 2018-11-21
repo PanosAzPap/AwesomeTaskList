@@ -1,0 +1,47 @@
+﻿@model AwesomeTaskList.Models.Task
+
+@{ 
+    bool invalidTitle = (bool)ViewData["InvalidTitle"];
+    string ClassSelect;
+    if (invalidTitle)
+    {
+        ClassSelect = "form-control is-invalid";
+    }
+    else
+    {
+        ClassSelect = "form-control";
+    }
+}
+
+<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+    <h2>Create new task</h2>
+    <form method="post" action="@Url.Action("CreateTask", "Home")">
+        <div class="form-row">
+            <div class="col-md-4 mb-3">
+                <label for="Title">Title</label>
+                <input type="text" class="@ClassSelect" id="Title" name="Title" placeholder="Title" value="@Model.Title">
+                @if (invalidTitle)
+                {
+                    <div class="invalid-feedback">
+                        Invalid or empty title!
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-md-4 mb-3">
+                <label for="Description">Description</label>
+                <input type="text" class="form-control" id="Description" name="Description" placeholder="Description" value="@Model.Description">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-md-4 mb-3">
+                <label for="Title">Due date</label>
+                <input type="text" class="form-control" id="DueDate" name="DueDate" placeholder="Due date" value="@Model.DueTime">
+            </div>
+        </div>
+        <button class="btn btn-primary" type="submit">Create</button>
+        <button type="button" class="btn btn-primary" onclick="window.location.href=&#39;/Home&#39;;">Cancel</button>
+    </form>
+</main>
+
